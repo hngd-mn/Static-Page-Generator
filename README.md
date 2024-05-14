@@ -1,2 +1,2 @@
 # spg
-spg desc
+basic static page generator
