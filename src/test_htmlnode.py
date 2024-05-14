@@ -3,6 +3,7 @@ import unittest
 from htmlnode import HTMLNode
 from htmlnode import LeafNode
 from htmlnode import ParentNode
+from htmlnode import text_node_to_html_node
 
 
 class TestHTMLNode(unittest.TestCase):
@@ -43,7 +44,7 @@ class TestHTMLNode(unittest.TestCase):
 
     def test_eq7(self):
         try:
-            node7 = ParentNode([LeafNode("b", "Bold text")], None)
+            node7 = ParentNode([LeafNode("b", "Bold text"), LeafNode("c", "Italic text")], None)
             print("test7", node7.to_html())
             raise AssertionError("ValueError was not raised")
         except ValueError:
@@ -57,9 +58,35 @@ class TestHTMLNode(unittest.TestCase):
         except ValueError:
             pass  # This is expected
 
-    def test_eq9(self):
-        
+    def test_eq9(self):   
+        node9 = ParentNode([LeafNode("b", "Bold text"), LeafNode("c", "Italic text")], "z")
+        assert node9.to_html() == "<z><b>Bold text</b><c>Italic text</c></z>"
 
+# text_node_to_html_node tests:
+
+    def test_eq10(self):
+        class MockTextNode:
+            def __init__(self, text_type, text, url=None):
+                self.text_type = text_type
+                self.text = text
+                self.url = url
+
+# Test cases
+        test_cases = [
+            MockTextNode("text", "Just some text"),
+            MockTextNode("bold", "Bold text"),
+            MockTextNode("italic", "Italic text"),
+            MockTextNode("code", "Code snippet"),
+            MockTextNode("link", "Click here", "https://example.com"),
+            MockTextNode("image", "An image", "https://example.com/image.png")
+        ]
+
+        for case in test_cases:
+            try:
+                node = text_node_to_html_node(case)
+                print(f"Success: {case.text_type} -> {node}")
+            except Exception as e:
+                print(f"Error: {e}")
 
 if __name__ == "__main__":
     unittest.main()

@@ -35,9 +35,13 @@ class LeafNode(HTMLNode):
         else:
             return f'<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>'
         
+    def __repr__(self):
+        return f"LeafNode({self.tag}, {self.value}, {self.props})"
+        
 class ParentNode(HTMLNode):
     def __init__(self, children, tag=None, props=None):
-        super().__init__(tag, children, props)
+        super().__init__(tag=tag, props=props)
+        self.children = children
 
     def to_html(self):
         result = ""
@@ -45,6 +49,30 @@ class ParentNode(HTMLNode):
             raise ValueError("Parent nodes must have a tag")
         if not self.children:
             raise ValueError("Parent nodes must have children")
-        #for child in self.children:
-            #result = result + f'{child.to_html()}'
-        #return f'<{self.tag}>' + result + f'</{self.tag}'
+        for child in self.children:
+            result = result + f'{child.to_html()}'
+        return f'<{self.tag}>' + result + f'</{self.tag}>'
+    
+def text_node_to_html_node(text_node):
+    text_type_text = "text"
+    text_type_bold = "bold"
+    text_type_italic = "italic"
+    text_type_code = "code"
+    text_type_link = "link"
+    text_type_image = "image"
+
+    if text_node.text_type == text_type_text:
+        return LeafNode(text_node.text)
+    elif text_node.text_type == text_type_bold:
+        return LeafNode("b", text_node.text)
+    elif text_node.text_type == text_type_italic:
+        return LeafNode("i", text_node.text)
+    elif text_node.text_type == text_type_code:
+        return LeafNode("code", text_node.text)
+    elif text_node.text_type == text_type_link:
+        return LeafNode("a", text_node.text, {"href" : text_node.url})
+    elif text_node.text_type == text_type_image:
+        return LeafNode("img", "", {"src": text_node.url, "alt": text_node.text})
+    else:
+        raise Exception("unidentified text node")
+    
